@@ -1,11 +1,6 @@
-from math import sqrt
-from copy import copy
-import pandas as pd
 import sys
 import numpy as np
-import scipy.stats.mstats as ssm
-
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 
 def linear_generator(x0, a, c, M):
     xn = x0
@@ -21,14 +16,17 @@ def M_generator(gen1, gen2, M = 2 **10 + 1, k=64):
         yield v[j]
         v[j] = x
 
-def test(gens, i, n):
-    pd.Series([next(gens[i]) for _ in range(n)]).plot()
+def normally_psi(gens, maxs, i=None):
+    if i is not None:
+        return next(gens[i]) / maxs[i]
+    else:
+        return next(gens) / maxs
 
-def normally_psi(gens, maxs, i):
-    return next(gens[i]) / maxs[i]
-
-def discrete_psi(gens, i, j):
-    return next(gens[i]) % j
+def discrete_psi(gens, j, i=None):
+    if i is not None:
+        return next(gens[i]) % j
+    else:
+        return next(gens) % j
 
 if __name__ == '__main__':
     gen1 = linear_generator(2, 1, 100, 101)
@@ -57,7 +55,7 @@ if __name__ == '__main__':
         all_examples = []
         for i in range(4):
             for j in range(2, 5):
-                all_examples.append(np.array([discrete_psi(gens, i, j) for _ in range(5000)]))
+                all_examples.append(np.array([discrete_psi(gens, j, i) for _ in range(5000)]))
 
         fig = plt.figure()
         for i in range(4):
@@ -79,7 +77,6 @@ if __name__ == '__main__':
                           np.mean((examples - E) ** 4),
                           np.mean((examples - E) ** 5)]
         ax = fig.add_subplot(4, 3, i + 1)
-        # fig.subplots_adjust(top=0.85)
         ax.text(10, 60, 'Moments:', fontsize=8)
         for i, val in enumerate(begin_moments):
             ax.text(10, 50 - i * 10, str(val), fontsize=8)
@@ -87,11 +84,4 @@ if __name__ == '__main__':
         for i, val in enumerate(centre_moments):
             ax.text(100, 50 - i * 10, str(val), fontsize=8)
         ax.axis([0, 200, 0, 75])
-        # print('Начальные моменты:')
-        # for i, moment in enumerate(begin_moments):
-        #     print('{}: {}'.format(i + 1, moment))
-        # print('Центральные моменты менты:')
-        # for i, moment in enumerate(centre_moments):
-        #     print('{}: {}'.format(i + 1, moment))
     plt.show()
-
