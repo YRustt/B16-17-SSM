@@ -35,7 +35,7 @@ def a5_generator(S19, S22, S23):
 
 def universal(seq, **kwargs):
     def to_number(arr):
-        return np.packbits(arr, axis=-1) >> 2
+        return np.packbits(arr, axis=-1) >> 1
     L, Q, n, K = kwargs['L'], kwargs['Q'], kwargs['n'], kwargs['K']
     T = np.zeros(2 ** L, dtype=np.int32)
     for i in range(Q):
@@ -50,17 +50,17 @@ def universal(seq, **kwargs):
         sum += np.log2(i - T[j])
         T[j] = i
     f = sum / K
-    p_value = erfc(abs((f - kwargs['expectedValue']) / (pow(2, 0.2) * kwargs['sigma'])))
+    p_value = erfc(abs((f - kwargs['expectedValue']) / (pow(2, 0.5) * kwargs['sigma'])))
     return p_value
 
 
 def test_universal(seq):
-    n = 400000
-    L = 6
-    Q = 640
+    n = 1000000
+    L = 7
+    Q = 1280
     K = int(n / L) - Q
-    expectedValue = 5.2177052
-    variance = 2.954
+    expectedValue = 6.1962507
+    variance = 3.125
     c = 0.7 - 0.8 / L + (4 + 32 / L) / 15 * pow(K, -3 / L)
     sigma = c * pow(variance / K, 0.5)
     p_value = universal(seq, n=n, L=L, Q=Q, K=K,
@@ -230,4 +230,3 @@ if __name__ == '__main__':
     # task2()
     # task1()
     pass
-
