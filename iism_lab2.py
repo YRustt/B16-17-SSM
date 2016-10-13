@@ -96,20 +96,20 @@ def linear_complexity(seq, M, n):
 
 
 def berlekamp_massey_alg(s):
+    s = np.array(s)
     n = len(s)
     b, c = np.zeros(n, dtype=np.int32), np.zeros(n, dtype=np.int32)
     b[0], c[0] = 1, 1
     L, m = 0, -1
     for N in range(n):
-        d = (sum(c[j] * s[N - j] for j in range(1, L + 1)) + s[N]) % 2
+        d = (s[N] + sum(c[1:L + 1] * s[N - L:N][::-1])) % 2
         if d == 0:
             continue
         t = np.copy(c)
-        for i in range(N - m, n):
-            c[i] = (c[i] + b[i - N + m]) % 2
+        c = (c + np.concatenate((np.zeros(N - m), b))[:n]) % 2
         if 2 * L <= N:
             L, m = N + 1 - L, N
-            b = np.copy(t)
+            b = t
     return L
 
 
