@@ -4,6 +4,14 @@ import matplotlib.pyplot as plt
 from iism_lab2 import a5_generator
 
 
+def get_a5_generator():
+    S19 = np.random.randint(2, size=19)
+    S22 = np.random.randint(2, size=22)
+    S23 = np.random.randint(2, size=23)
+    gen = a5_generator(S19, S22, S23)
+    return gen
+
+
 # def normal_psi(gen, depth):
 #     while True:
 #         n1, n2, n3 = 0, 1, 1
@@ -24,11 +32,7 @@ def uniform_psi(gen, n=10):
 
 
 def poisson_psi(l=2.718284590452, x=300):
-    S19 = np.random.randint(2, size=19)
-    S22 = np.random.randint(2, size=22)
-    S23 = np.random.randint(2, size=23)
-    gen = a5_generator(S19, S22, S23)
-    psi = uniform_psi(gen, n=10)
+    psi = uniform_psi(get_a5_generator(), n=10)
     p = l / x
     while True:
         k = 0
@@ -39,11 +43,7 @@ def poisson_psi(l=2.718284590452, x=300):
 
 
 def normal_psi(n, E=0, D=1):
-    S19 = np.random.randint(2, size=19)
-    S22 = np.random.randint(2, size=22)
-    S23 = np.random.randint(2, size=23)
-    gen = a5_generator(S19, S22, S23)
-    psi = uniform_psi(gen, n=10)
+    psi = uniform_psi(get_a5_generator(), n=10)
     while True:
         if n > 0:
             yield E + D * (sum([next(psi) for _ in range(n)]) - n / 2) / (n / 12) ** 0.5
@@ -52,11 +52,7 @@ def normal_psi(n, E=0, D=1):
 
 
 def exponential_psi(l=2):
-    S19 = np.random.randint(2, size=19)
-    S22 = np.random.randint(2, size=22)
-    S23 = np.random.randint(2, size=23)
-    gen = a5_generator(S19, S22, S23)
-    psi = uniform_psi(gen, n=10)
+    psi = uniform_psi(get_a5_generator(), n=10)
     while True:
         yield -np.log(next(psi)) / l
 
