@@ -18,9 +18,9 @@ from iism_lab2 import a5_generator
 #         yield n2 / m2
 
 
-def uniform_psi(gen, n):
+def uniform_psi(gen, n=10):
     while True:
-        yield int(''.join([str(next(gen)) for _ in range(n)]), 2) / (2 ** n - 1)
+        yield (int(''.join([str(next(gen)) for _ in range(n)]), 2) + 1) / (2 ** n + 1)
 
 
 def poisson_psi(l=2.718284590452, x=300):
@@ -38,22 +38,31 @@ def poisson_psi(l=2.718284590452, x=300):
         yield k
 
 
-def normal_psi(n, a=0, s=1):
+def normal_psi(n, E=0, D=1):
     S19 = np.random.randint(2, size=19)
     S22 = np.random.randint(2, size=22)
     S23 = np.random.randint(2, size=23)
     gen = a5_generator(S19, S22, S23)
     psi = uniform_psi(gen, n=10)
     while True:
-        yield a + s * (sum([next(psi) for _ in range(n)]) - n / 2) / (n / 12) ** 0.5
+        if n > 0:
+            yield E + D * (sum([next(psi) for _ in range(n)]) - n / 2) / (n / 12) ** 0.5
+        else:
+            yield E + D * (-2 * np.log(next(psi))) ** 0.5 * np.sin(2 * np.pi * next(psi))
 
 
-def exponential_psi(l):
-    pass
+def exponential_psi(l=2):
+    S19 = np.random.randint(2, size=19)
+    S22 = np.random.randint(2, size=22)
+    S23 = np.random.randint(2, size=23)
+    gen = a5_generator(S19, S22, S23)
+    psi = uniform_psi(gen, n=10)
+    while True:
+        yield -np.log(next(psi)) / l
+
 
 if __name__ == '__main__':
-    psi = normal_psi(10)
+    psi = exponential_psi()
     res = [next(psi) for _ in range(1000)]
-    print(res)
     print(np.mean(res))
     print(np.std(res))
