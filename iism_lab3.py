@@ -31,7 +31,7 @@ def uniform_psi(gen, n=10):
         yield (int(''.join([str(next(gen)) for _ in range(n)]), 2) + 1) / (2 ** n + 1)
 
 
-def poisson_psi(l=2.718284590452, x=300):
+def poisson_psi(l=1, x=200):
     psi = uniform_psi(get_a5_generator(), n=10)
     p = l / x
     while True:
