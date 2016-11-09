@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from iism_lab2 import a5_generator
 from scipy.stats import chi2
+from math import gamma
 
 def get_a5_generator():
     S19 = np.random.randint(2, size=19)
@@ -50,7 +51,7 @@ def polynomial_psi(ps):
         val = next(psi)
         for i, p in enumerate(ps):
             if val < p:
-                return i
+                yield i
 
 
 def M(res):
@@ -99,20 +100,26 @@ def draw_empirical_histogram(res, xs, func=None, params=None, ax=None, type='bar
     ax.legend(loc=loc)
 
 
-def pearson_test(res, k, eps, func, *args):
-    _min, _max, n = min(res), max(res), len(res)
-    step = (_max - _min) / k
-    x = np.array([val for val in np.arange(_min, _max, step)])
-    y = np.array([len([t for t in res if val <= t < val + step]) for val in x]) / len(res)
-    f = list(map(lambda t: func(t, *args), x)) + [func(_max + step, *args)]
-    p = np.array(list(map(lambda x, y: x - y, f[:-1], f[1:])))
-    xsi = np.sum((y - n * p) ** 2 / (n * p))
-    P = 1 - chi2.cdf(xsi, k - 1)
+def pearson_test(res, xs, eps, func, params):
+    def G(s, r):
+        return 1 / (2 ** (r / 2) * gamma(r / 2)) * s ** (r / 2 - 1) * np.exp(-s / 2)
+    n = len(res)
+    ys = np.array(empirical_histogram(res, xs)[1])
+    fs = np.array(calc_function(func, xs, params)[1])
+    ps = np.array([fs[i + 1] - fs[i] for i in range(len(fs) - 1)])
+    xsi = np.sum((ys - n * ps) * (ys - n * ps) / (n * ps))
+    P = 1 - G(xsi, len(ps) - 1)
     return eps < P
 
 
-def kolmogorov_test(res, ):
-    pass
+def kolmogorov_test(res, eps, func, params):
+    def K(t):
+        return np.sum([(-1) ** j * np.exp(-2 * j ** 2 * t ** 2) for j in range(-100, 101)])
+    n = len(res)
+    xs, ys = empirical_distribution_func(res)
+    dn = np.amax(np.array(calc_function(func, xs[:-1], params)[1]) - np.array(ys))
+    P = 1 - K(n ** 0.5 * dn)
+    return eps < P
 
 
 if __name__ == '__main__':
@@ -120,3 +127,4 @@ if __name__ == '__main__':
     res = [next(psi) for _ in range(1000)]
     print(np.mean(res))
     print(np.std(res))
+
