@@ -44,14 +44,18 @@ def exponential_psi(l=2):
         yield -np.log(next(psi)) / l
 
 
-def polynomial_psi(ps):
+def polynomial_psi(n, ps):
     psi = uniform_psi(get_a5_generator(), n=10)
     ps = np.cumsum(ps)
     while True:
-        val = next(psi)
-        for i, p in enumerate(ps):
-            if val < p:
-                yield i
+        res = []
+        for i in range(n):
+            val = next(psi)
+            for i, p in enumerate(ps):
+                if val < p:
+                    res.append(i)
+                    break
+        yield np.histogram(res, bins=len(ps))[0]
 
 
 def M(res):
