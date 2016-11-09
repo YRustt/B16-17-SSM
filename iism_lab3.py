@@ -32,7 +32,7 @@ def normal_psi(n, E=0, D=1):
     psi = uniform_psi(get_a5_generator(), n=10)
     while True:
         if n > 0:
-            yield E + D * (sum([next(psi) for _ in range(n)]) - n / 2) / (n / 12) ** 0.5
+            yield E + D * (sum([next(psi) for _ in range(n)]) - n / 2) * (12 / n) ** 0.5
         else:
             yield E + D * (-2 * np.log(next(psi))) ** 0.5 * np.sin(2 * np.pi * next(psi))
 
@@ -62,8 +62,8 @@ def D(res):
 
 
 def empirical_distribution_func(res):
-    ys, xs = np.histogram(res, bins=np.unique(res), density=True)
-    return xs, np.cumsum(ys)
+    ys, xs = np.histogram(res, bins=np.unique(res))
+    return xs, np.cumsum(ys) / len(res)
 
 
 def empirical_histogram(res, xs):
@@ -77,17 +77,23 @@ def calc_function(func, xs, params=None):
     return xs, ys
 
 
-def draw_empirical_distribution_func(res, func=None, params=None, ax=None, label=None, loc=None):
+def draw_empirical_distribution_func(res, func=None, params=None, type='bar', ax=None, label=None, loc=None):
     xs, ys = empirical_distribution_func(res)
-    ax.bar(xs[:-1], ys, label=label, color='green')
+    if type == 'bar':
+        ax.bar(xs[:-1], ys, label=label, color='green')
+    elif type == 'plot':
+        ax.plot(xs[:-1], ys, label=label, color='green')
     xs, ys = calc_function(func, xs[:-1], params)
     ax.plot(xs, ys, color='blue')
     ax.legend(loc=loc)
 
 
-def draw_empirical_histogram(res, xs, func=None, params=None, ax=None, label=None, loc=None):
+def draw_empirical_histogram(res, xs, func=None, params=None, ax=None, type='bar', label=None, loc=None):
     xs, ys = empirical_histogram(res, xs)
-    ax.bar(xs[:-1], ys, label=label, color='green')
+    if type == 'bar':
+        ax.bar(xs[:-1], ys, label=label, color='green')
+    elif type == 'plot':
+        ax.plot(xs[:-1], ys, label=label, color='green')
     xs, ys = calc_function(func, xs[:-1], params)
     ax.plot(xs, ys, color='blue')
     ax.legend(loc=loc)
