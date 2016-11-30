@@ -5,6 +5,7 @@ from iism_lab2 import a5_generator
 from scipy.stats import chi2
 from math import gamma
 
+
 def get_a5_generator():
     S19 = np.random.randint(2, size=19)
     S22 = np.random.randint(2, size=22)
@@ -66,40 +67,39 @@ def D(res):
     return np.std(res)
 
 
-def empirical_distribution_func(res):
-    ys, xs = np.histogram(res, bins=np.unique(res))
-    return xs, np.cumsum(ys) / len(res)
+def empirical_histogram(res, left_border, right_border, k):
+    step = (right_border - left_border) / k
+    ys = np.array([len([t for t in res if xi <= t < xi + step])
+                   for xi in np.arange(left_border, right_border, step)]) / len(res)
+    return ys
 
 
-def empirical_histogram(res, xs):
-    _min, _max = xs[0], xs[-1]
-    ys = np.array([len([t for t in res if xs[i] <= t < xs[i + 1]]) for i in range(len(xs) - 1)]) / len(res)
-    return xs, ys
+def empirical_distribution_func(res, left_border, right_border, k):
+    return np.cumsum(empirical_histogram(res, left_border, right_border, k))
 
 
-def calc_function(func, xs, params=None):
-    ys = [func(x, **params) if params is not None else func(x) for x in xs]
-    return xs, ys
+def calc_function(func, xi, params=None):
+    return func(xi, **params) if params is not None else func(xi)
 
 
 def draw_empirical_distribution_func(res, func=None, params=None, type='bar', ax=None, label=None, loc=None):
-    xs, ys = empirical_distribution_func(res)
+    xs, ys = list(np.arange(-100, 101, 10)), empirical_distribution_func(res, -100, 100, 10)
     if type == 'bar':
         ax.bar(xs[:-1], ys, label=label, color='green')
     elif type == 'plot':
         ax.plot(xs[:-1], ys, label=label, color='green')
-    xs, ys = calc_function(func, xs[:-1], params)
+    ys = [calc_function(func, xi, params) for xi in xs]
     ax.plot(xs, ys, color='blue')
     ax.legend(loc=loc)
 
 
 def draw_empirical_histogram(res, xs, func=None, params=None, ax=None, type='bar', label=None, loc=None):
-    xs, ys = empirical_histogram(res, xs)
+    xs, ys = list(np.arange(-100, 101, 10)), empirical_histogram(res, -100, 100, 10)
     if type == 'bar':
         ax.bar(xs[:-1], ys, label=label, color='green')
     elif type == 'plot':
         ax.plot(xs[:-1], ys, label=label, color='green')
-    xs, ys = calc_function(func, xs[:-1], params)
+    ys = [calc_function(func, xi, params) for xi in xs]
     ax.plot(xs, ys, color='blue')
     ax.legend(loc=loc)
 
