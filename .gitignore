@@ -2,3 +2,5 @@ __pycache__/*
 __idea__/*
 venv/*
 .idea/*
+.python-version
+
