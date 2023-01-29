@@ -3,4 +3,5 @@ __idea__/*
 venv/*
 .idea/*
 .python-version
+.ipynb_checkpoints/
 
